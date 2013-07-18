@@ -23,6 +23,9 @@ defimpl DBI, for: DBI.PostgreSQL do
     process_result(P.equery(conn, expr, bindings_list))
   end
 
+  defp process_result(list) when is_list(list) do
+    lc item inlist list, do: process_result(item)
+  end
   defp process_result({:ok, columns, rows}) do
     process_result({:ok, nil, columns, rows})
   end
