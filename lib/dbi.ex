@@ -8,7 +8,7 @@ defimpl DBI, for: DBI.PostgreSQL do
   Record.import DBI.PostgreSQL.Error, as: :error
 
   def query(T[conn: conn], statement, []) do
-    process_result(P.squery(conn, statement))
+    process_result(P.squery(conn, statement), statement, [])
   end
   def query(T[conn: conn], statement, bindings) do
     parsed_statement = DBI.Statement.parse(statement)
@@ -20,23 +20,24 @@ defimpl DBI, for: DBI.PostgreSQL do
         {expr <> item, bindings_list}
     end)
     bindings_list = Enum.reverse bindings_list
-    process_result(P.equery(conn, expr, bindings_list))
+    process_result(P.equery(conn, expr, bindings_list), statement, bindings)
   end
 
-  defp process_result(list) when is_list(list) do
-    lc item inlist list, do: process_result(item)
+  defp process_result(list, statement, bindings) when is_list(list) do
+    lc item inlist list, do: process_result(item, statement, bindings)
   end
-  defp process_result({:ok, columns, rows}) do
-    process_result({:ok, nil, columns, rows})
+  defp process_result({:ok, columns, rows}, statement, bindings) do
+    process_result({:ok, nil, columns, rows}, statement, bindings)
   end
-  defp process_result({:ok, count}) do
+  defp process_result({:ok, count}, _statement, _bindings) do
     {:ok, result(count: count)}
   end
-  defp process_result({:ok, count, columns, rows}) do
+  defp process_result({:ok, count, columns, rows}, _statement, _bindings) do
     column_names = lc {:column, name, _type, _size, _modifier, _format} inlist columns, do: name
     {:ok, result(count: count, columns: column_names, rows: rows)}
   end
-  defp process_result({:error, {:error, severity, code, description, extra}}) do
-    {:error, error(severity: severity, code: code, description: description, extra: extra)}
+  defp process_result({:error, {:error, severity, code, description, extra}}, statement, bindings) do
+    {:error, error(severity: severity, code: code, description: description, extra: extra,
+                   statement: statement, bindings: bindings)}
   end
 end
