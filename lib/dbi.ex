@@ -8,7 +8,7 @@ defimpl DBI, for: DBI.PostgreSQL do
   Record.import DBI.PostgreSQL.Error, as: :error
 
   def query(T[conn: conn], statement, []) do
-    process_result(P.squery(conn, statement), statement, [])
+    process_result(P.equery(conn, statement), statement, [])
   end
   def query(T[conn: conn], statement, bindings) do
     parsed_statement = DBI.Statement.parse(statement)
