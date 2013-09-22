@@ -15,7 +15,8 @@ defrecord DBI.PostgreSQL, conn: nil do
                               {:port, :inet.port_number} |
                               {:ssl, boolean | :required} |
                               {:ssl_opts, [:ssl.ssl_option]} |
-                              {:timeout, timeout}
+                              {:timeout, timeout} |
+                              {:async, pid}
   @type connection_options :: [connection_option]
 
   @doc """
@@ -31,6 +32,7 @@ defrecord DBI.PostgreSQL, conn: nil do
   * `ssl` — SSL requirement, `true`, `false` or `:required`. `false` by default
   * `ssl_options` — See `ssl` module documentation
   * `timeout`— Timeout in milliseconds. 5000 by default.
+  * `async` — send async notices and notifications to a pid (epgsql-specific)
   """
   @spec connect(connection_options) :: {:ok, connection} | {:ok, error}
   def connect(opts) do
@@ -52,6 +54,7 @@ defrecord DBI.PostgreSQL, conn: nil do
                  ssl: opts[:ssl] || false,
                  ssl_opts: opts[:ssl_opts] || :undefined,
                  timeout: opts[:timeout] || 5000,
+                 async: opts[:async] || :undefined
                ]
      case apply(P, :connect, Enum.reverse([options|args])) do
        {:ok, conn} -> {:ok, new(conn: conn)}
