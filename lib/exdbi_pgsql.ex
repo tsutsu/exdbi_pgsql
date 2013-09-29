@@ -84,4 +84,13 @@ defrecord DBI.PostgreSQL, conn: nil do
       {:error, error} -> raise error
     end
   end
+
+  @doc """
+  Close the connection
+  """
+  @spec close(connection) :: :ok
+  def close(__MODULE__[conn: conn]) do
+    P.close(conn)
+    :ok
+  end
 end
