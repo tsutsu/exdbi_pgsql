@@ -4,13 +4,12 @@ defimpl DBI, for: DBI.PostgreSQL do
 
   alias DBI.PostgreSQL, as: T
   alias :pgsql, as: P
+  alias DBI.PostgreSQL.Error
 
-  Record.import DBI.PostgreSQL.Error, as: :error
-
-  def query(T[conn: conn], statement, []) do
+  def query(%T{conn: conn}, statement, []) do
     process_result(P.equery(conn, statement), statement, [])
   end
-  def query(T[conn: conn], statement, bindings) do
+  def query(%T{conn: conn}, statement, bindings) do
     parsed_statement = DBI.Statement.parse(statement)
     {expr, bindings_list} =
     Enum.reduce(parsed_statement, {"", []}, fn
@@ -24,20 +23,20 @@ defimpl DBI, for: DBI.PostgreSQL do
   end
 
   defp process_result(list, statement, bindings) when is_list(list) do
-    lc item inlist list, do: process_result(item, statement, bindings)
+    for item <- list, do: process_result(item, statement, bindings)
   end
   defp process_result({:ok, columns, rows}, statement, bindings) do
     process_result({:ok, nil, columns, rows}, statement, bindings)
   end
   defp process_result({:ok, count}, _statement, _bindings) do
-    {:ok, result(count: count)}
+    {:ok, %Result{count: count}}
   end
   defp process_result({:ok, count, columns, rows}, _statement, _bindings) do
-    column_names = lc {:column, name, _type, _size, _modifier, _format} inlist columns, do: name
-    {:ok, result(count: count, columns: column_names, rows: rows)}
+    column_names = for {:column, name, _type, _size, _modifier, _format} <- columns, do: name
+    {:ok, %Result{count: count, columns: column_names, rows: rows}}
   end
   defp process_result({:error, {:error, severity, code, description, extra}}, statement, bindings) do
-    {:error, error(severity: severity, code: code, description: description, extra: extra,
-                   statement: statement, bindings: bindings)}
+    {:error, %Error{severity: severity, code: code, description: description, extra: extra,
+                   statement: statement, bindings: bindings}}
   end
 end

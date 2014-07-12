@@ -9,12 +9,12 @@ defmodule DBI.PostgreSQL.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    [applications: %w(exdbi epgsql)a]
+    [applications: ~w(exdbi epgsql)a]
   end
 
   defp deps do
     [
-      {:exdbi,  github: "exdbi/exdbi"},
+      {:exdbi,  github: "khia/exdbi"},
       {:epgsql, github: "wg/epgsql"},
     ]
   end

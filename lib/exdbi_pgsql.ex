@@ -1,11 +1,13 @@
-defrecord DBI.PostgreSQL, conn: nil do
+defmodule DBI.PostgreSQL do
+  defstruct conn: nil
+
   @moduledoc """
    This module allows to connect to a PostgreSQL database
   """
 
   alias :pgsql, as: P
 
-  @type connection
+  @type connection :: any
   @type error :: DBI.PostgreSQL.Error
 
   @typep connection_option :: {:host, String.t} |
@@ -57,7 +59,7 @@ defrecord DBI.PostgreSQL, conn: nil do
                  async: opts[:async] || :undefined
                ]
      case apply(P, :connect, Enum.reverse([options|args])) do
-       {:ok, conn} -> {:ok, new(conn: conn)}
+       {:ok, conn} -> {:ok, %__MODULE__{conn: conn}}
        {:error, :invalid_authorization_specification} ->
          {:error,
           DBI.PostgreSQL.Error.new severity: :error, code: "28000",
@@ -89,7 +91,7 @@ defrecord DBI.PostgreSQL, conn: nil do
   Close the connection
   """
   @spec close(connection) :: :ok
-  def close(__MODULE__[conn: conn]) do
+  def close(%__MODULE__{conn: conn}) do
     P.close(conn)
     :ok
   end
