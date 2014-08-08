@@ -62,15 +62,18 @@ defmodule DBI.PostgreSQL do
        {:ok, conn} -> {:ok, %__MODULE__{conn: conn}}
        {:error, :invalid_authorization_specification} ->
          {:error,
-          DBI.PostgreSQL.Error.new severity: :error, code: "28000",
-                                   description: "Invalid authorization specification"}
+          %DBI.PostgreSQL.Error{
+            severity: :error, code: "28000",
+            description: "Invalid authorization specification"}}
        {:error, :invalid_password} ->
          {:error,
-          DBI.PostgreSQL.Error.new severity: :error, code: "28P01",
-                                   description: "Invalid password"}
+          %DBI.PostgreSQL.Error{
+             severity: :error, code: "28P01",
+             description: "Invalid password"}}
        {:error, error} when is_binary(error) ->
-         {:error, DBI.PostgreSQL.Error.new severity: :error, code: error,
-                                           description: "Can't connect"}
+         {:error, %DBI.PostgreSQL.Error{
+           severity: :error, code: error,
+           description: "Can't connect"}}
      end
   end
 
