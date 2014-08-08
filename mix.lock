@@ -1,2 +1,2 @@
 %{"epgsql": {:git, "git://github.com/wg/epgsql.git", "3318bd5d646cad0623ae9dcc6df015bb85258a63", []},
-  "exdbi": {:git, "git://github.com/khia/exdbi.git", "19421cf8b4302a3e668afc00a96a7fbad963c7d0", []}}
+  "exdbi": {:git, "git://github.com/khia/exdbi.git", "d11f1b7e518b373392fbd8039b1d64192982b0f5", []}}
