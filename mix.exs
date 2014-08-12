@@ -15,7 +15,7 @@ defmodule DBI.PostgreSQL.Mixfile do
   defp deps do
     [
       {:exdbi,  github: "khia/exdbi"},
-      {:epgsql, github: "wg/epgsql"},
+      {:epgsql, github: "epgsql/epgsql"},
     ]
   end
 end
