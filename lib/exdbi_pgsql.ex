@@ -40,14 +40,14 @@ defmodule DBI.PostgreSQL do
   def connect(opts) do
      host = to_char_list(opts[:host] || "localhost")
      args = [host]
-     unless nil?(opts[:username]) do
+     unless is_nil(opts[:username]) do
        args = [to_char_list(opts[:username])|args]
      end
-     unless nil?(opts[:password]) do
+     unless is_nil(opts[:password]) do
        args = [to_char_list(opts[:password])|args]
      end
      options = [
-                 database: if nil?(opts[:database]) do
+                 database: if is_nil(opts[:database]) do
                    :undefined
                  else
                    to_char_list(opts[:database])
