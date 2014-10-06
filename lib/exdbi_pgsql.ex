@@ -36,7 +36,7 @@ defmodule DBI.PostgreSQL do
   * `timeout`— Timeout in milliseconds. 5000 by default.
   * `async` — send async notices and notifications to a pid (epgsql-specific)
   """
-  @spec connect(connection_options) :: {:ok, connection} | {:ok, error}
+  @spec connect(connection_options) :: {:ok, connection} | {:error, error}
   def connect(opts) do
      host = to_char_list(opts[:host] || "localhost")
      args = [host]
