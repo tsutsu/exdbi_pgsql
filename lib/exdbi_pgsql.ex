@@ -47,33 +47,39 @@ defmodule DBI.PostgreSQL do
        args = [to_char_list(opts[:password])|args]
      end
      options = [
-                 database: if is_nil(opts[:database]) do
-                   :undefined
-                 else
-                   to_char_list(opts[:database])
-                 end,
-                 port: opts[:port] || 5432,
-                 ssl: opts[:ssl] || false,
-                 ssl_opts: opts[:ssl_opts] || :undefined,
-                 timeout: opts[:timeout] || 5000,
-                 async: opts[:async] || :undefined
-               ]
-     case apply(P, :connect, Enum.reverse([options|args])) do
+       database: if is_nil(opts[:database]) do
+	 :undefined
+       else
+	 to_char_list(opts[:database])
+       end,
+       port: opts[:port] || 5432,
+       ssl: opts[:ssl] || false,
+       ssl_opts: opts[:ssl_opts] || :undefined,
+       timeout: opts[:timeout] || 5000,
+       async: opts[:async] || :undefined
+     ]
+     result = try do
+       apply(P, :connect, Enum.reverse([options|args]))
+     rescue e ->
+       {:error, e}
+     end
+
+     case result do
        {:ok, conn} -> {:ok, %__MODULE__{conn: conn}}
        {:error, :invalid_authorization_specification} ->
-         {:error,
-          %DBI.PostgreSQL.Error{
-            severity: :error, code: "28000",
-            description: "Invalid authorization specification"}}
+         {:error, %DBI.PostgreSQL.Error{
+           severity: :error, code: "28000",
+           description: "Invalid authorization specification"}}
        {:error, :invalid_password} ->
-         {:error,
-          %DBI.PostgreSQL.Error{
-             severity: :error, code: "28P01",
-             description: "Invalid password"}}
+         {:error, %DBI.PostgreSQL.Error{
+           severity: :error, code: "28P01",
+           description: "Invalid password"}}
        {:error, error} when is_binary(error) ->
          {:error, %DBI.PostgreSQL.Error{
            severity: :error, code: error,
            description: "Can't connect"}}
+       {:error, error} ->
+         {:error, error}
      end
   end
 
